@@ -97,14 +97,34 @@ router.get('/getuserbyid/:id/:pagesize/:page', async (req, res) => {
     );
   }
 })
-router.post('/createmsg', async (req, res) => {
+router.post('/createmsg/:id', async (req, res) => {
   try {
-    let requestBody = { message: req.body.message, msgid: req.body.msgid, type: req.body.type, date: req.body.date, seen: req.body.seen, from: req.body.from, to: req.body.to,img:req.body.img ? req.body.img : false,imgtype:req.body.imgtype ? req.body.imgtype : 'text' }
-    const newCompany = new msgModel(requestBody);
-    await newCompany.save();
+    const messages = require('../models/messages.model')
+    const group = await messages.find({to:req.params.id});
+    const body={message:req.body.message,from:req.body.from,time:req.body.time,seen:req.body.seenBy}
+    const messagesq={...group[0]._doc,messages:[...group[0]._doc.messages,body]}
+    // messagesq.push(body)
+    // userModel.updateOne(
+    //   { email: req.body.email },
+    //   {
+    //     $set: {
+    //       messages: requestBody
+    //     }
+    //   },
+    //   function (err, result) {
+    //     if (err) {
+    //       res.send(err)
+    //       console.log(err)
+    //     }
+    //     else {
+    //       res.send(result)
+    //     }
+    //   }
+    // );
     res.status(200).send(
       successResponse({
         message: 'msg Created Successfully!',
+        data:messagesq
       })
     );
   } catch (err) {
