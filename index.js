@@ -12,9 +12,8 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 const { addUser, removeUser, getUser} = require('./users.js')
 io.on('connection', function (socket) {
-  socket.on('sendMessage', (message, name, room, d, seen, type, callback) => {
-    const user = getUser(room, name);
-    io.to(user.room).emit('message', { user: user.name, message: message, msgid: user.room, date: d, seen: seen, type: type });
+  socket.on('sendMessage', (message,from,time,seennBy, name, callback) => {
+    io.to(user.room).emit('message', { name:name,from:from, message: message, time: time,seenBy:seennBy});
     callback();
   });
   socket.on('disconnect', () => {
