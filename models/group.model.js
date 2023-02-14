@@ -8,6 +8,9 @@ const Schema = new mongoose.Schema({
   groupIcon: {
     type: String,
     require:true
+  },
+  userId: {
+    type:String
   }
 }, { timestamps: true });
 
