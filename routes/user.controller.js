@@ -102,30 +102,23 @@ router.post('/createmsg/:id', async (req, res) => {
     const messages = require('../models/messages.model')
     const group = await messages.find({to:req.params.id});
     const body={message:req.body.message,from:req.body.from,time:req.body.time,seen:req.body.seenBy}
-    const messagesq={...group[0]._doc,messages:[...group[0]._doc.messages,body]}
-    // messagesq.push(body)
-    // userModel.updateOne(
-    //   { email: req.body.email },
-    //   {
-    //     $set: {
-    //       messages: requestBody
-    //     }
-    //   },
-    //   function (err, result) {
-    //     if (err) {
-    //       res.send(err)
-    //       console.log(err)
-    //     }
-    //     else {
-    //       res.send(result)
-    //     }
-    //   }
-    // );
-    res.status(200).send(
-      successResponse({
-        message: 'msg Created Successfully!',
-        data:messagesq
-      })
+    const messagesq=[...group[0]._doc.messages,body]
+    messages.updateOne(
+      { to: req.params.id },
+      {
+        $set: {
+          messages: messagesq
+        }
+      },
+      function (err, result) {
+        if (err) {
+          res.send(err)
+          console.log(err)
+        }
+        else {
+          res.send(result)
+        }
+      }
     );
   } catch (err) {
     res.status(500).send(
