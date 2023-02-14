@@ -43,4 +43,42 @@ router.get('/getgroups', async (req, res) => {
       );
     }
   })
+  router.get('/getgroupbyid/:id', async (req, res) => {
+    try {
+      const group = await groupModel.find({_id:req.params.id});
+      res.status(200).send(
+        successResponse({
+          message: 'groups Retrieved Successfully!',
+          data: group
+  
+        })
+      )
+    } catch (err) {
+      res.status(500).send(
+        failResponse({
+          message: err ? err.message : "groups Not Fetched!"
+        })
+      );
+    }
+  })
+  router.get('/getmessagesbyid/:id', async (req, res) => {
+    try {
+      const messages = require('../models/messages.model')
+      const group = await messages.find({to:req.params.id});
+      res.status(200).send(
+        successResponse({
+          message: 'groups Retrieved Successfully!',
+          data: group
+  
+        })
+      )
+    } catch (err) {
+      res.status(500).send(
+        failResponse({
+          message: err ? err.message : "groups Not Fetched!"
+        })
+      );
+    }
+  })
+  
   module.exports = router
