@@ -101,7 +101,7 @@ router.post('/createmsg/:id', async (req, res) => {
   try {
     const messages = require('../models/messages.model')
     const group = await messages.find({to:req.params.id});
-    const body={message:req.body.message,from:req.body.from,time:req.body.time,seen:req.body.seenBy}
+    const body={message:req.body.message,from:req.body.from,time:req.body.time,seen:req.body.seenBy,name:req.body.name}
     const messagesq=[...group[0]._doc.messages,body]
     messages.updateOne(
       { to: req.params.id },
