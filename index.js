@@ -18,7 +18,7 @@ io.on('connection', function (socket) {
     socket.join(user.room);
     callback()
   })
-  socket.on('sendMessage', (room,message,from,time,seenBy, name, callback) => {
+  socket.on('sendMessage', ({room,message,from,time,seenBy, name, callback}) => {
     io.to(room).emit('message', { room:room,name:name,from:from, message: message, time: time,seenBy:seenBy});
     callback();
   });
