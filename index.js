@@ -18,14 +18,16 @@ io.on('connection', function (socket) {
     socket.join(user.room);
     callback()
   })
-
   socket.on('sendMessage', (room,message,from,time,seenBy, name, callback) => {
     io.to(room).emit('message', { room:room,name:name,from:from, message: message, time: time,seenBy:seenBy});
     callback();
   });
-  socket.on('disconnect',({userId}), () => {
+  socket.on('leave', (room, callback) => {
+    io.to(room).emit('end', { user: 'admin', message: `has left.`, email: `${room}` })
+  })
+  socket.on('disconnect', ({userId}) => {
     console.log('user diconnect')
-    const user = removeUser(socket.userId)
+    const user = removeUser(userId)
     if (user) {
       socket.broadcast.emit('end', { user: 'admin', text: `${user.name} has left.`, email: `${user.room}` })
       // io.to(user.room).emit('end', { user: 'admin', message: `${user.name} has left.`, email: `${user.room}` })
