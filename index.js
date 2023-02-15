@@ -12,13 +12,20 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 const { addUser, removeUser, getUser} = require('./users.js')
 io.on('connection', function (socket) {
-  socket.on('sendMessage', (message,from,time,seennBy, name, callback) => {
-    io.to(user.room).emit('message', { name:name,from:from, message: message, time: time,seenBy:seennBy});
+  socket.on('join', ({ name, room,userId }, callback) => {
+    const id = socket.id
+    const { user } = addUser({ name, room,id,userId})
+    socket.join(user.room);
+    callback()
+  })
+
+  socket.on('sendMessage', (room,message,from,time,seenBy, name, callback) => {
+    io.to(room).emit('message', { room:room,name:name,from:from, message: message, time: time,seenBy:seenBy});
     callback();
   });
-  socket.on('disconnect', () => {
+  socket.on('disconnect',({userId}), () => {
     console.log('user diconnect')
-    const user = removeUser(socket.id)
+    const user = removeUser(socket.userId)
     if (user) {
       socket.broadcast.emit('end', { user: 'admin', text: `${user.name} has left.`, email: `${user.room}` })
       // io.to(user.room).emit('end', { user: 'admin', message: `${user.name} has left.`, email: `${user.room}` })

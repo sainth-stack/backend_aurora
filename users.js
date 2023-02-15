@@ -1,13 +1,13 @@
 const users = []
-const addUser = ({name, room,msg,id,type }) => {
-    const user = { id, name, room,msg,type,status:'Online'  }
+const addUser = ({name, room,id,userId }) => {
+    const user = { id, name, room,userId,status:'Online'  }
     if(user.room !== undefined){
         users.push(user)
     }
     return { user }
 }
 const removeUser = (id) => {
-    const index = users.findIndex((user) => user.id === id);
+    const index = users.findIndex((user) => user.userId === id);
     if (index !== -1) {
         return users.splice(index, 1)[0];
     }
