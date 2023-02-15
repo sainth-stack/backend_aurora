@@ -100,26 +100,34 @@ router.get('/getuserbyid/:id/:pagesize/:page', async (req, res) => {
 router.post('/createmsg/:id', async (req, res) => {
   try {
     const messages = require('../models/messages.model')
-    const group = await messages.find({to:req.params.id});
     const body={message:req.body.message,from:req.body.from,time:req.body.time,seen:req.body.seenBy,name:req.body.name}
-    const messagesq=[...group[0]._doc.messages,body]
     messages.updateOne(
       { to: req.params.id },
-      {
-        $set: {
-          messages: messagesq
-        }
-      },
-      function (err, result) {
-        if (err) {
-          res.send(err)
-          console.log(err)
-        }
+      { $push: { messages: body } },
+      function(err, result) {
+        if (err) throw err;
         else {
           res.send(result)
         }
       }
     );
+    // messages.updateOne(
+    //   { to: req.params.id },
+    //   {
+    //     $set: {
+    //       messages: messagesq
+    //     }
+    //   },
+    //   function (err, result) {
+    //     if (err) {
+    //       res.send(err)
+    //       console.log(err)
+    //     }
+    //     else {
+    //       res.send(result)
+    //     }
+    //   }
+    // );
   } catch (err) {
     res.status(500).send(
       failResponse({
