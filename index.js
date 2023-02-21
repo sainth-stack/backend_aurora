@@ -10,9 +10,10 @@ connectDB()
 const io = require('socket.io')(http, { cors: { origin: "*" } });
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-const { addUser, removeUser, getUser} = require('./users.js')
+const { addUser, removeUser, getUser, getUsers} = require('./users.js')
 io.on('connection', function (socket) {
   socket.on('join', ({ name, room,userId }, callback) => {
+    console.log(name,'joined')
     const id = socket.id
     const { user } = addUser({ name, room,id,userId})
     socket.join(user.room);
@@ -20,10 +21,13 @@ io.on('connection', function (socket) {
   })
   socket.on('sendMessage', ({room,message,from,time,seenBy, name},callback) => {
     io.to(room).emit('message', { room:room,name:name,from:from, message: message, time: time,seenBy:seenBy});
+    const users = getUsers(room)
+    socket.broadcast.emit("newMessage", { room:room,name:name,from:from, message: message, time: time,seenBy:seenBy,users});
     callback();
   });
-  socket.on('leave', (room, callback) => {
-    io.to(room).emit('end', { user: 'admin', message: `has left.`, email: `${room}` })
+  socket.on('leave', ({name, room,userId }, callback) => {
+    console.log(name,'leaved')
+    const user = removeUser(room,userId)
   })
   socket.on('disconnect', ({userId}) => {
     console.log('user diconnect')

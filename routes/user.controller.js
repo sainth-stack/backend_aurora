@@ -100,34 +100,43 @@ router.get('/getuserbyid/:id/:pagesize/:page', async (req, res) => {
 router.post('/createmsg/:id', async (req, res) => {
   try {
     const messages = require('../models/messages.model')
-    const body={message:req.body.message,from:req.body.from,time:req.body.time,seen:req.body.seenBy,name:req.body.name}
-    messages.updateOne(
-      { to: req.params.id },
-      { $push: { messages: body } },
-      function(err, result) {
-        if (err) throw err;
-        else {
-          res.send(result)
+    const users = await userModel.find({ to: req.params.id })
+    if(users){
+      const body={message:req.body.message,from:req.body.from,time:req.body.time,seen:req.body.seenBy,name:req.body.name}
+      messages.updateOne(
+        { to: req.params.id },
+        { $push: { messages: body } },
+        function(err, result) {
+          if (err) throw err;
+          else {
+            res.send(result)
+          }
         }
+      );
+    }
+    else{
+      let requestBody = {
+        to: req.params.id,
+        destinationType: "group",
+        messages:[
+          {
+            message:req.body.message,
+            contentType:"text",
+            from:req.body.from,
+            time:req.body.time,
+            seenBy:[req.body.seenBy]
+          }
+        ],
       }
-    );
-    // messages.updateOne(
-    //   { to: req.params.id },
-    //   {
-    //     $set: {
-    //       messages: messagesq
-    //     }
-    //   },
-    //   function (err, result) {
-    //     if (err) {
-    //       res.send(err)
-    //       console.log(err)
-    //     }
-    //     else {
-    //       res.send(result)
-    //     }
-    //   }
-    // );
+      const newCompany = new messages(requestBody);
+      await newCompany.save();
+      res.status(200).send(
+        successResponse({
+          message: 'messages Created Successfully!',
+        })
+      );
+    }
+
   } catch (err) {
     res.status(500).send(
       failResponse({
